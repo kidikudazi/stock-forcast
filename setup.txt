@@ -1,0 +1,21 @@
+1) once all installations are done for GIT and Xampp, restart the system
+2) start xampp, and click on the first two start button,
+3) Extract the produce-forecast file and double click on the folder to open the folder
+, afterwards, right click on your mouse and select GIT BASH HERE
+4) once the git bash terminal opens, run the following command one after the other
+- php artisan config:cache
+- php artisan cache:clear
+- php artisan migrate
+- php artisan db:seed
+
+ After the above commands has be completed(ensure to do it one after the other), then run the following command 
+to start the project
+
+- php artisan serve
+
+NOTE: It should start on port 8000, so you can then open your browser and put this into the 
+address bar : localhost:8000
+
+5) To visit the admin end, visit: localhost:8000/administrator/login
+ username:admin@admin.com,
+ password:password
