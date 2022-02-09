@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\{
-    User,
-    Stock
+    Admin,
+    Stock,
+    Subscriber
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
-    Auth,
     View,
     Validator,
     Session,
@@ -21,54 +21,110 @@ class AdminController extends Controller
 {
     use Helper;
 
+    protected $redirectTo = '/administrator';
+
+    /**
+     * Login admin
+     */
+    public function login(Request $request)
+    {
+        try {
+            // Set validation rules
+            $rules = [
+                'email'     => 'required',
+                'password'  => 'required',
+            ];
+
+            // Validate rules
+            $validation = Validator::make($request->all(), $rules);
+            if ($validation->fails()) {
+                // Return validation message
+                return redirect()->back()->withInput()->withErrors($validation);
+            }
+
+            // Request form inputs
+            $email = $request->email;
+            $password = $request->password;
+
+            // Check auth
+            $checkAuth = Admin::where('email', $email)->first();
+            if ($checkAuth) {
+                if (Hash::check($password, $checkAuth->password)) {
+                    // Set session for admin
+                    $session = Session::put('admin', $email);
+
+                    return redirect()->intended('/administrator/home')->with($session);
+                }
+            }
+
+            $message = Session::flash('error', 'Invalid email/password provided!');
+            return redirect()->back()->withInput()->with($message);
+        } catch (\Exception $e) {
+            $error = Session::flash('error', 'Sorry, your request could not be completed.');
+            return redirect()->back()->withInput()->with($error);
+        }
+    }
+
     /**
      * Home page
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function home(Request $request)
     {
         try {
-            $user = Auth::user();
+            // Check authentication
+            $session = $request->session()->get('admin');
+            if (!$session) return redirect()->to($this->redirectTo);
 
-            return view::make('administrator.dashboard')->with([
-                'admin' => $user,
+            $admin = Admin::where('email', $session)->first();
+
+            return view('administrator.dashboard', [
+                'admin' => $admin,
             ]);
         } catch (\Exception $ex) {
-            return redirect()->to('/'); 
+            return redirect()->to('/');
         }
     }
 
     /**
      * Profile page
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function profile(Request $request)
     {
         try {
-            $user = Auth::user();
+            // Check authentication
+            $session = $request->session()->get('admin');
+            if (!$session) return redirect()->to($this->redirectTo);
 
-            return view::make('administrator.profile')->with([
-                'admin' => $user,
+            $admin = Admin::where('email', $session)->first();
+
+            return view('administrator.profile', [
+                'admin' => $admin,
             ]);
         } catch (\Exception $ex) {
-            return redirect()->back(); 
+            return redirect()->back();
         }
     }
 
     /**
      * Update Profile
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function updateProfile(Request $request)
     {
         try {
-            $user = Auth::user();
+            // Check authentication
+            $session = $request->session()->get('admin');
+            if (!$session) return redirect()->to($this->redirectTo);
+
+            $admin = Admin::where('email', $session)->first();
 
             # validation rules
             $rules = [
@@ -82,14 +138,14 @@ class AdminController extends Controller
             }
 
             # validate phone number
-            $validatePhone = User::whereNotNull('phone')->where('phone', $request->phone)->first();
-            if ($validatePhone && $validatePhone->id != $user->id) {
+            $validatePhone = Admin::whereNotNull('phone')->where('phone', $request->phone)->first();
+            if ($validatePhone && $validatePhone->id != $admin->id) {
                 $error = Session::flash('error', 'Phone number already exist.');
                 return redirect()->back()->with($error)->withInput();
             }
 
-            # update user info
-            User::find($user->id)->update([
+            # update admin info
+            Admin::find($admin->id)->update([
                 'name' => $request->name,
                 'phone' => $request->phone,
             ]);
@@ -98,20 +154,24 @@ class AdminController extends Controller
             return redirect()->to('administrator/profile')->with($success);
         } catch (\Exception $ex) {
             $error = Session::flash('error', 'Profile update failed!');
-            return redirect()->back(); 
+            return redirect()->back();
         }
     }
 
     /**
      * Update Password
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function updatePassword(Request $request)
     {
         try {
-            $user = Auth::user();
+            // Check authentication
+            $session = $request->session()->get('admin');
+            if (!$session) return redirect()->to($this->redirectTo);
+
+            $admin = Admin::where('email', $session)->first();
 
             # validation rules
             $rules = [
@@ -125,43 +185,47 @@ class AdminController extends Controller
             }
 
             # update user password
-            User::find($user->id)->update([ 'password' => Hash::make($request->new_password) ]);
+            Admin::find($admin->id)->update(['password' => Hash::make($request->new_password)]);
 
             $success = Session::flash('success', 'Password updated!');
             return redirect()->to('administrator/profile')->with($success);
         } catch (\Exception $ex) {
             $error = Session::flash('error', 'Password update failed. Try again');
-            return redirect()->back(); 
+            return redirect()->back();
         }
     }
 
     /**
      * Stock Page
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function stock(Request $request)
     {
         try {
-            $user = Auth::user();
+            // Check authentication
+            $session = $request->session()->get('admin');
+            if (!$session) return redirect()->to($this->redirectTo);
+
+            $admin = Admin::where('email', $session)->first();
 
             # stocks
             $stocks = Stock::orderBy('created_at', 'DESC')->get();
 
-            return view::make('administrator.stock')->with([
-                'admin' => $user,
+            return view('administrator.stock', [
+                'admin' => $admin,
                 'stocks' => $stocks,
             ]);
         } catch (\Exception $ex) {
-            return redirect()->back(); 
+            return redirect()->back();
         }
     }
 
     /**
      * Create Stock
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function createStock(Request $request)
@@ -175,16 +239,14 @@ class AdminController extends Controller
             ];
 
             $validator = Validator::make($request->all(), $rules);
-
             if ($validator->fails()) {
                 return redirect()->back()->withInput()->withErrors($validator);
             }
 
-
             # check if stock exist
             $checkStock = Stock::where('name', $request->name)
-            ->where('unit', $request->unit)
-            ->first();
+                ->where('unit', $request->unit)
+                ->first();
 
             if ($checkStock) {
                 $error = Session::flash('error', 'Stock already exist');
@@ -199,31 +261,33 @@ class AdminController extends Controller
             ]);
 
             // fetch all users
-            $fetchAllUsers = User::where('is_admin', false)->get();
-
-            foreach($fetchAllUsers as $list){
-
-                $notify = $this->sendNotification($list->phone, 'Hey '.$list->name.', A new stock has been created, kindly visit our site to check.');
+            $subscribers = Subscriber::all();
+            foreach ($subscribers as $list) {
+                $this->sendNotification($list->phone, 'Hey ' . $list->name . ', A new stock has been created, kindly visit our site to check.');
             }
 
             $success = Session::flash('success', 'Stock created!');
             return redirect()->to('administrator/stock')->with($success);
         } catch (\Exception $ex) {
             $error = Session::flash('error', 'Error creating stock');
-            return redirect()->to('administrator/stock')->with($error)->withInput(); 
+            return redirect()->to('administrator/stock')->with($error)->withInput();
         }
     }
 
     /**
      * Edit Stock
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function editStock(Request $request, $stock)
     {
         try {
-            $user = Auth::user();
+            // Check authentication
+            $session = $request->session()->get('admin');
+            if (!$session) return redirect()->to($this->redirectTo);
+
+            $admin = Admin::where('email', $session)->first();
 
             # stocks
             $stocks = Stock::orderBy('created_at', 'DESC')->get();
@@ -232,19 +296,19 @@ class AdminController extends Controller
             $edit = Stock::findOrFail($stock);
 
             return view::make('administrator.stock')->with([
-                'admin' => $user,
+                'admin' => $admin,
                 'stocks' => $stocks,
                 'edit' => $edit,
             ]);
         } catch (\Exception $ex) {
-            return redirect()->back(); 
+            return redirect()->back();
         }
     }
 
     /**
      * Update Stock
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function updateStock(Request $request, $stock)
@@ -258,16 +322,14 @@ class AdminController extends Controller
             ];
 
             $validator = Validator::make($request->all(), $rules);
-
             if ($validator->fails()) {
                 return redirect()->back()->withInput()->withErrors($validator);
             }
 
-
             # check if stock exist
             $checkStock = Stock::where('name', $request->name)
-            ->where('unit', $request->unit)
-            ->first();
+                ->where('unit', $request->unit)
+                ->first();
 
             if ($checkStock && $checkStock->id != $stock) {
                 $error = Session::flash('error', 'Stock already exist');
@@ -285,11 +347,9 @@ class AdminController extends Controller
                 'unit' => $request->unit,
             ]);
 
-            $fetchAllUsers = User::where('is_admin', false)->get();
-
-            foreach($fetchAllUsers as $list){
-
-                $notify = $this->sendNotification($list->phone, 'Hey '.$list->name.', stock price have been updated for ('.$request->name.').');
+            $subscribers = Subscriber::all();
+            foreach ($subscribers as $list) {
+                $this->sendNotification($list->phone, 'Hey ' . $list->name . ', stock price have been updated for (' . $request->name . ').');
             }
 
             $success = Session::flash('success', 'Stock updated!');
@@ -303,7 +363,7 @@ class AdminController extends Controller
     /**
      * Delete Stock
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function deleteStock(Request $request)
@@ -327,17 +387,18 @@ class AdminController extends Controller
     /**
      * Logout
      * @param \Illuminate\Http\Request $request
-     * 
+     *
      * @return \Illuminate\Http\Response
      */
     public function logout(Request $request)
     {
         try {
-            Auth::logout();
+            $admin = $request->session()->get('admin');
+            if ($admin) $admin->forget();
 
-            return redirect()->to('/');
+            return redirect()->to($this->redirectTo);
         } catch (\Exception $ex) {
-            return redirect()->to('/'); 
+            return redirect()->to($this->redirectTo);
         }
     }
 }

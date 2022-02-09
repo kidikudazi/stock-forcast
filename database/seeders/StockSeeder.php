@@ -43,11 +43,16 @@ class StockSeeder extends Seeder
         ];
 
         foreach ($stocks as $stock) {
-            Stock::create([
-                'name' => $stock['stock'],
-                'current_price' => $stock['current_price'],
-                'unit' => $stock['unit'],
-            ]);
+            Stock::updateOrCreate(
+                [
+                    'name'  => $stock['stock'],
+                ],
+                [
+                    'name' => $stock['stock'],
+                    'current_price' => $stock['current_price'],
+                    'unit' => $stock['unit'],
+                ]
+            );
         }
     }
 }

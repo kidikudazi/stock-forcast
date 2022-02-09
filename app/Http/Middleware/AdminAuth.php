@@ -17,9 +17,9 @@ class AdminAuth
      */
     public function handle(Request $request, Closure $next)
     {
-        $user = Auth::user();
+        $user = Auth::user()->where('is_admin', 1);
         if (empty($user)) {
-            return redirect()->to('/');
+            return redirect()->to('/administrator');
         }
         return $next($request);
     }

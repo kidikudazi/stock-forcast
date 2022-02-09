@@ -21,7 +21,7 @@
             .help-block {
                 color: #dd4b39;
             }
-        
+
             .has-error {
                 color: #dd4b39;
             }
@@ -84,8 +84,8 @@
                             </div>
                         </div>
                     </div>
-                </div>            
-            </div>        
+                </div>
+            </div>
         </div>
         <script src="{{ asset('assets/admin/js/vendors.js') }}"></script>
         <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>

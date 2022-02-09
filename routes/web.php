@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     WebController,
-    AdminController
+    UserController,
+    AdminController,
+    AdminLoginController,
+    UserLoginController
 };
 
 /*
@@ -25,21 +28,24 @@ Route::group([
 
     Route::post('/', [WebController::class, 'subscribe']);
 
-    Route::view('administrator/login', 'login');
+    Route::post('/login', [UserLoginController::class, 'login'])->name('login');
 
-    Route::post('administrator/login', [WebController::class, 'login']);
+    Route::post('/register', [UserLoginController::class, 'register'])->name('register');
+
 });
 
 # admin routes
-Route::group([
-    'prefix' => 'administrator',
-    'middleware' => 'admin-auth',
-], function () {
+Route::prefix('administrator')->group(function () {
+
+    Route::view('/', 'administrator.login')->name('administrator.login');
+    
+    Route::post('/', [AdminController::class, 'login']);
+
     # dashboard
-    Route::get('/home', [AdminController::class, 'home']);
+    Route::get('/home', [AdminController::class, 'home'])->name('administrator.home');
 
     # profile page
-    Route::get('/profile', [AdminController::class, 'profile']);
+    Route::get('/profile', [AdminController::class, 'profile'])->name('administrator.profile');
 
     # update profile
     Route::post('/update/profile', [AdminController::class, 'updateProfile']);
@@ -64,4 +70,25 @@ Route::group([
 
     # logout
     Route::post('/logout', [AdminController::class, 'logout']);
+});
+
+// User routes
+Route::prefix('user')->group(function () {
+    // User home page
+    Route::get('/home', [UserController::class, 'home'])->name('user.home');
+
+    # profile page
+    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+
+    # update profile
+    Route::post('/update/profile', [UserController::class, 'updateProfile']);
+
+    # update password
+    Route::post('/update/password', [UserController::class, 'updatePassword']);
+
+    // farm stocks page
+    Route::get('/stocks', [UserController::class, 'stocks']);
+
+    // Search farm stock
+    Route::get('/stocks/filter', [UserController::class, 'filterFarmStocks'])->name('user.stock.search');
 });
