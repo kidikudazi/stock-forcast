@@ -91,4 +91,7 @@ Route::prefix('user')->group(function () {
 
     // Search farm stock
     Route::get('/stocks/filter', [UserController::class, 'filterFarmStocks'])->name('user.stock.search');
+
+    // logout
+    Route::post('/logout', [UserController::class, 'logout']);
 });

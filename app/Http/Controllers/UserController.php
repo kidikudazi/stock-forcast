@@ -185,4 +185,23 @@ class UserController extends Controller
             return redirect()->back();
         }
     }
+
+
+    /**
+     * Logout
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        try {
+            $admin = $request->session()->get('admin');
+            if ($admin) $admin->forget();
+
+            return redirect()->to('/');
+        } catch (\Exception $ex) {
+            return redirect()->to('/');
+        }
+    }
 }

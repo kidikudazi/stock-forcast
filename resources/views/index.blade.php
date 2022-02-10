@@ -137,7 +137,7 @@
             </div>
         </div>
     </header>
-    <section id="register-section" class="hero-area hero-area-3 bg-dark">
+    <section id="register-section" class="hero-area hero-area-3 bg-dark" style="background-image: url({{ asset('assets/admin/img/crops/farm_land.jpg') }});">
         <span class="ring-shape ring-shape-white ring-shape-1 position-absolute"></span>
         <span class="ring-shape ring-shape-white ring-shape-2 position-absolute"></span>
         <span class="ring-shape ring-shape-white ring-shape-3 position-absolute"></span>
@@ -164,7 +164,7 @@
                         </div>
                     </div>
                 @endif
-                <div id="login-container">
+                <div id="login-container" style="background: black;">
                     <form class="padding-top-35px col-lg-6 mx-auto" method="POST" id="login-form" action="{{ route('login') }}" novalidate>
                         @csrf
                         <fieldset class="fieldset">
@@ -196,7 +196,7 @@
                     </form>
                 </div>
 
-                <div id="register-container">
+                <div id="register-container" style="background: black;">
                     <form class="padding-top-35px col-lg-6 mx-auto" method="POST" id="register-form" action="{{ route('register') }}" novalidate>
                         @csrf
                         <fieldset class="fieldset">

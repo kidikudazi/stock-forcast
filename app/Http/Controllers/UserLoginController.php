@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
+use App\Traits\Helper;
 class UserLoginController extends Controller
 {
     use AuthenticatesUsers;
+    use Helper;
 
     /**
      * Where to redirect users after login.
@@ -94,6 +96,7 @@ class UserLoginController extends Controller
             return redirect()->back()->with($success);
 
         } catch (\Exception $e) {
+            dd($e);
             $error = Session::flash('error', 'Sorry, your registration could not be completed.');
             return redirect()->back()->withInput()->with($error);
         }

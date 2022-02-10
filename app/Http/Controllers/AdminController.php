@@ -9,6 +9,7 @@ use App\Models\{
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
+    Auth,
     View,
     Validator,
     Session,
@@ -393,8 +394,9 @@ class AdminController extends Controller
     public function logout(Request $request)
     {
         try {
-            $admin = $request->session()->get('admin');
-            if ($admin) $admin->forget();
+            Session::flush(); 
+            Session::forget('admin');
+            Auth::logout();
 
             return redirect()->to($this->redirectTo);
         } catch (\Exception $ex) {

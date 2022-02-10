@@ -85,6 +85,7 @@
 
                         <div class="row">
                             <div class="col-lg-12">
+                                <h4>Farm Stock Forcasting System <a href="{{ url('user/stocks') }}" class="btn btn-success btn-sm">View Stocks <i class="fa fa-line-chart"></i></a></h4>
                                 <div class="carousel slide" data-ride="carousel" id="carousel">
                                     <ul class="carousel-indicators">
                                         <li data-target="#carousel" data-slide-to="0" class="active"></li>
@@ -93,11 +94,11 @@
             
                                     <div class="carousel-inner text-center">
                                         <div class="carousel-item active">
-                                            <img src="{{ asset('assets/admin/img/crops/tomato.jpg') }}">
+                                            <img src="{{ asset('assets/admin/img/crops/farm_land.jpg') }}" class="img img-responsive" style="width: 100%;height: 500px;">
                                         </div>
 
                                         <div class="carousel-item">
-                                            <img src="{{ asset('assets/admin/img/crops/maize.jpg') }}">
+                                            <img src="{{ asset('assets/admin/img/crops/cashew.jpg') }}" class="img img-responsive" style="width: 100%;height: 500px;">
                                         </div>
                                     </div>
             

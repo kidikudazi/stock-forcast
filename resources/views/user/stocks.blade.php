@@ -44,31 +44,46 @@
                         </div>
 
                         <div class="row">
-                            @foreach ($farm_stocks as $farmStock)
-                                <div class="col-md-4">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h3 class="card-title text-center">{{ $farmStock->name }}</h3>
-                                            <hr>
-                                            <h4 class="card-subtitle">Unit: {{ $farmStock->unit }}</h4>
-                                            <br>
-                                            <h4 class="card-subtitle">
-                                                Price:
-                                                    @if($farmStock->previous_price != NULL)
-                                                        @if ($farmStock->previous_price == $farmStock->current_price)
-                                                            &#8358;{{ number_format($farmStock->previous_price) }}
-                                                        @else
-                                                            <strike>&#8358;{{ number_format($farmStock->previous_price) }}
-                                                            </strike>&nbsp; &#8358;{{ number_format($farmStock->current_price) }}
-                                                        @endif
+                            <div class="card datatable-wrapper table-responsive">
+                                <table id="list" class="display compact table table-striped table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Produce</th>
+                                        <th scope="col">Previous Price</th>
+                                        <th scope="col">Current Price</th>
+                                        <th scope="col">Unit</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach ($farm_stocks as $stock)
+                                            @php
+                                                $prevGainOrLoss  =  floatval($stock->current_price) - floatval($stock->previous_price);
+                                            @endphp
+                                            <tr>
+                                                <th scope="row">{{ $loop->iteration }}.</th>
+                                                <td class="d-flex align-items-center crypto-name-wrap">
+                                                    <p class="line-height-18">
+                                                        {{ $stock->name }}
+                                                    </p>
+                                                </td>
+                                                <td><span class="text-danger">&#8358;{{ number_format($stock->previous_price, 2) }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-success">&#8358;{{ number_format($stock->current_price, 2) }}</span> 
+                                                    @if($prevGainOrLoss < 1)
+                                                        <span class="fa fa-long-arrow-down text-danger" style="font-weight: bold;"></span>
                                                     @else
-                                                        &#8358;{{ number_format($farmStock->current_price) }}
+                                                        <span class="fa fa-long-arrow-up text-success" style="font-weight: bold;"></span>
                                                     @endif
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
+                                                </td>
+                                                <td>{{ $stock->unit }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                             <div class="col-md-12">
                                 <hr>
                                 <div class="text-center">
